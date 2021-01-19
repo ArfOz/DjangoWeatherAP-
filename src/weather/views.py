@@ -17,9 +17,14 @@ def index(request):
         if form.is_valid():
             new_city = form.cleaned_data["name"]
             if not City.objects.filter(name = new_city).exists():
-                form.save()
+                r = requests.get(url.format(new_city))
+                if r.status_code == 200:
+                    form.save()
+                    messages.success(request, "City added succesfully.")
+                else:
+                    messages.warning(request, "City does not exist.")
             else:
-                messages.warning("request","City already exists.")
+                messages.warning(request, "City already exists.")
 
             return redirect("home")
 
