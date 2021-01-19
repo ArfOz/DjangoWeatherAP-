@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Weather APP<h1>
+        <form actions="" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit">Add</button>
+            <br><br>
+        {% for city in city_data %}
+        {{ city.city }} <br>
+        <img src="http://openweathermap.org/img/w//{{ city.icon }}.png" alt="Image"> <br>
+        {{ city.temp }} <br>
+        {{ city.description }}
+        <hr>
+
+        {% endfor %}
+
+    </body>
+</html>

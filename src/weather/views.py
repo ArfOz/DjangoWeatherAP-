@@ -1,4 +1,47 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from decouple import config
+import requests   
+from pprint import pprint
+
+from .forms import CityForm     
+from .models import City
+from django.contrib import messages                     
 
 def index(request):
-    return render(request, "weather/index.html")
+
+    form =CityForm()
+    cities = City.objects.all()
+    url= config("BASE_URL")
+    if request.method =="POST":
+        form = CityForm(request.POST)
+        if form.is_valid():
+            new_city = form.cleaned_data["name"]
+            if not City.objects.filter(name = new_city).exists():
+                form.save()
+            else:
+                messages.warning("request","City already exists.")
+
+            return redirect("home")
+
+    city_data = []
+    for city in cities:
+        print(city)
+        r = requests.get(url.format(city)) 
+        data = r.json()
+
+        weather_data ={
+            "city" :city.name,
+            "temp" : data["main"]["temp"],
+            "description" : data["weather"][0]["description"],
+            "icon" : data["weather"][0]["icon"]
+        }
+
+        city_data.append(weather_data)
+    print (city_data)
+
+    context ={
+        "city_data" :city_data,
+        "form" : form
+    }
+   
+    return render(request, "weather/index.html", context)
